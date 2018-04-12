@@ -1,0 +1,73 @@
+#!/usr/bin/env php
+<?php
+
+require 'src/lib/cli-tools.php';
+
+function compile($pharName, $stubFile) {
+
+    $basedir = dirname( __FILE__ );
+
+    function prunePrefix( $files, $prefix ) {
+        $newlist = array();
+        $prefix_len = strlen( $prefix );
+        foreach( $files as $file => $data ) {
+            if( substr( $file, 0, $prefix_len ) !== $prefix ) {
+                $newlist[$file] = $data;
+            }
+        }
+        return $newlist;
+    }
+    function pruneSuffix( $files, $suffix ) {
+        $newlist = array();
+        $suffix_len = strlen( $suffix );
+        foreach( $files as $file => $data ) {
+            if( substr( $file, -$suffix_len ) !== $suffix ) {
+                $newlist[$file] = $data;
+            }
+        }
+        return $newlist;
+    }
+    $phar = new Phar($pharName);
+    $fileIter = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator( $basedir, FileSystemIterator::SKIP_DOTS ) );
+    $files = iterator_to_array( $fileIter );
+    $files = prunePrefix( $files, $basedir . '/.git' );
+    $files = prunePrefix( $files, $basedir . '/build' );
+    $files = prunePrefix( $files, $basedir . '/composer' );
+    $files = prunePrefix( $files, $basedir . '/compiler' );
+    $files = pruneSuffix( $files, 'swp' );
+    $files = pruneSuffix( $files, '~' );
+    foreach( $files as $file ) {
+        echo "Adding: $file ...\n";
+    }
+    $phar->buildFromIterator( new ArrayIterator($files), $basedir );
+
+    $stub = <<<"EOT"
+#!/usr/bin/env php
+<?php
+Phar::mapPhar( '$pharName' );
+set_include_path( 'phar://$pharName' . PATH_SEPARATOR . get_include_path() );
+require('$stubFile');
+__HALT_COMPILER();
+EOT;
+
+    $phar->setStub( $stub );
+    system( "chmod +x $pharName" );
+}
+
+$pharName = ask("Name of the phar to create");
+$stubFile = ask("The start file of the package");
+
+
+if (preg_match('/\.phar$/', $pharName)) {
+    echo "ERROR: Please omit '.phar' suffix!";
+    exit(1);
+}
+
+$phpExeName = "{$pharName}.phar";
+
+compile($phpExeName, $stubFile);
+
+//make the phar executable
+exec("chmod +x {$phpExeName}");
+

@@ -1,0 +1,15 @@
+{
+    "name": "ibejohn818/mt-migrate",
+    "description": "Migration tools for MT written in PHP",
+    "type": "metapackage",
+    "require": {
+        "aws/aws-sdk-php": "^3.54"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "John Hardy",
+            "email": "jhardy@godaddy.com"
+        }
+    ]
+}
