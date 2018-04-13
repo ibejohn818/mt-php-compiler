@@ -14,5 +14,3 @@ executed on any system with PHP installed
 #### Compile w/Docker for mac
 `docker run --rm -it -v $(pwd):/app -w /app  -u $(id -u):$(id -g) ibejohn818/php:php71w-build /bin/bash -c './compiler'`
 
-#### Compile w/Docker on linux
-`docker run --rm -it -v $(pwd):/app -w /app -v /etc/passwd:/etc/passwd:ro -u $(id -u):$(id -g) ibejohn818/php:php71w-build /bin/bash -c './compiler'`
