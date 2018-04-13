@@ -3,7 +3,7 @@
 Compiles a script to PHP executable including composer includes.
 
 Execute the compile script and fill in the prompts
-`./compile`
+`./compiler`
 
 You will be asked what you wish the executable to be named
 and the entry script.
